@@ -19,9 +19,6 @@
 
 uint8_t *buffer;
 
-
-float x, y;
-
 int sirka = 320;
 int vyska = 240;
  
@@ -98,68 +95,13 @@ int init_mmap(int fd)
     return 0;
 }
 
- 
-int detect_red(int fd)
-{
-    int pocitadlo = 0;
-    struct v4l2_buffer buf = {0};
-    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_MMAP;
-    buf.index = 0;
-    
-#ifdef POUZI_YUV
-    uint8_t *rgb = (uint8_t *)malloc(sirka * vyska * 3);
-#endif
-
-    if(-1 == xioctl(fd, VIDIOC_STREAMON, &buf.type))
-    {
-        perror("nepodarilo sa zapnut snimanie obrazu");
-        return 1;
-    }
- 
-    long long tm = usec();
-
-    // cyklus zosnimania obrazku zopakujeme napr. 300-krat
-    int pocet_opakovani = 300;
-    for (int rep = 0; rep < pocet_opakovani; rep++)
-    {
-	    
-      if(-1 == xioctl(fd, VIDIOC_QBUF, &buf))
-      {
-        perror("nepodarilo sa poziadat o buffer");
-        return 1;
-      }
-      
-      fd_set fds;
-      FD_ZERO(&fds);
-      FD_SET(fd, &fds);
-      struct timeval tv = {0};
-      tv.tv_sec = 2;
-      int rv = select(fd+1, &fds, NULL, NULL, &tv);
-      if(-1 == rv)
-      {
-          perror("pocas cakania na obrazok doslo k chybe");
-          return 1;
-      }
-  
-      if(-1 == xioctl(fd, VIDIOC_DQBUF, &buf))
-      {
-          perror("nepodarilo sa ziskat obrazok");
-          return 1;
-      }
-      printf ("spracovavam obrazok %d... ", pocitadlo++);
-
-
-
-
-
-
 int je_lopta(uint8_t r, uint8_t g, uint8_t b)
 {
 
   float h, s, v, max, min;
   h = 0;
  
+  if ((uint16_t)r + (uint16_t)g + (uint16_t)b == 0) return 0;
    if (r < b){
     if(r < g){
       min = r;
@@ -221,34 +163,108 @@ int je_lopta(uint8_t r, uint8_t g, uint8_t b)
 }
 
 
-int vzdialenost;
-char sprava[100];
+int minr, mins, maxr, maxs;
 
-int navigacia(int pocet_oranzovych){
-	//po namerani testovnych hodnot napisat matematicku funkciu
-	//nakalibrovat farbu lopty
-	
-	int namerana_vzdialenost1 = 200, pocet_bodov = 1000;
-	int namerana_vzdialenost2 = 100, y_vzor = 120;
-	
-	
-	
-	if(x < sirka/2+50 && x > sirka/2-50){
-		sprintf(sprava,"dopredu");
-		vzdialenost = pocet_bodov*namerana_vzdialenost1 / pocet_oranzovych;
-	}
-	else{
-		if(x < sirka/2){
-			sprintf(sprava,"vlavo");
-		}
-		else{
-			sprintf(sprava,"vpravo");
-		}
-		vzdialenost = y_vzor*namerana_vzdialenost2 / y; 
-	}
+
+void zisti_rgb(int riadok, int stlpec, uint8_t *r, uint8_t *g, uint8_t *b)
+{
+#ifdef POUZI_YUV
+  	      *r = buffer[riadok * sirka * 3 + stlpec * 3];
+  	      *g = buffer[riadok * sirka * 3 + stlpec * 3 + 1];
+  	      *b = buffer[riadok * sirka * 3 + stlpec * 3 + 2];
+#else
+  	      *b = buffer[riadok * sirka * 3 + stlpec * 3];
+  	      *g = buffer[riadok * sirka * 3 + stlpec * 3 + 1];
+  	      *r = buffer[riadok * sirka * 3 + stlpec * 3 + 2];
+#endif
 }
 
+int fill(int riadok, int stlpec)
+{
+  if (riadok < minr) minr = riadok;
+  if (riadok > maxr) maxr = riadok;
+  if (stlpec < mins) mins = stlpec;
+  if (stlpec > maxs) maxs = stlpec;
+  
+  buffer[riadok * sirka * 3 + stlpec * 3] = 70;
+  buffer[riadok * sirka * 3 + stlpec * 3 + 1] = 255;
+  buffer[riadok * sirka * 3 + stlpec * 3 + 2] = 70;
+  
+  uint8_t r, g, b;
+  
+  zisti_rgb(riadok, stlpec + 1, &r, &g, &b);
+  int kolko = 1;
+  
+  if (je_lopta(r, g, b))
+    kolko += fill(riadok, stlpec + 1);
 
+  zisti_rgb(riadok, stlpec - 1, &r, &g, &b);
+  
+  if (je_lopta(r, g, b))
+    kolko += fill(riadok, stlpec - 1);
+
+  zisti_rgb(riadok - 1, stlpec, &r, &g, &b);
+    
+  if (je_lopta(r, g, b))
+    kolko += fill(riadok - 1, stlpec);
+
+  zisti_rgb(riadok + 1, stlpec, &r, &g, &b);
+  
+  if (je_lopta(r, g, b))
+    kolko += fill(riadok + 1, stlpec);
+
+  return kolko;
+}
+ 
+int detect_red(int fd)
+{
+    int pocitadlo = 0;
+    struct v4l2_buffer buf = {0};
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_MMAP;
+    buf.index = 0;
+    
+#ifdef POUZI_YUV
+    uint8_t *rgb = (uint8_t *)malloc(sirka * vyska * 3);
+#endif
+
+    if(-1 == xioctl(fd, VIDIOC_STREAMON, &buf.type))
+    {
+        perror("nepodarilo sa zapnut snimanie obrazu");
+        return 1;
+    }
+ 
+    long long tm = usec();
+
+    // cyklus zosnimania obrazku zopakujeme napr. 300-krat
+    int pocet_opakovani = 50000;
+    for (int rep = 0; rep < pocet_opakovani; rep++)
+    {
+	    
+      if(-1 == xioctl(fd, VIDIOC_QBUF, &buf))
+      {
+        perror("nepodarilo sa poziadat o buffer");
+        return 1;
+      }
+      
+      fd_set fds;
+      FD_ZERO(&fds);
+      FD_SET(fd, &fds);
+      struct timeval tv = {0};
+      tv.tv_sec = 2;
+      int rv = select(fd+1, &fds, NULL, NULL, &tv);
+      if(-1 == rv)
+      {
+          perror("pocas cakania na obrazok doslo k chybe");
+          return 1;
+      }
+  
+      if(-1 == xioctl(fd, VIDIOC_DQBUF, &buf))
+      {
+          perror("nepodarilo sa ziskat obrazok");
+          return 1;
+      }
+      printf ("spracovavam obrazok %d... ", pocitadlo++);
 
 #ifdef POUZI_YUV
       yuv422_to_rgb((uint8_t *)buffer, rgb, sirka, vyska);
@@ -263,9 +279,38 @@ int navigacia(int pocet_oranzovych){
       // na tomto mieste chcete program upravit podla svojich potrieb...
 
 
-x = 0;
-y = 0;
+      // najskor vynulujeme vsetky 4 okraje, aby fill nevybehol mimo rozsah pola
+      for (int i = 0; i < vyska; i++)
+      {
+         // lavy okraj
+         buffer[i*sirka*3] = 0;
+         buffer[i*sirka*3 + 1] = 0;
+         buffer[i*sirka*3 + 2] = 0;
+         
+         // pravy okraj
+         buffer[(i + 1)*sirka*3 - 3] = 0;
+         buffer[(i + 1)*sirka*3 - 2] = 0;
+         buffer[(i + 1)*sirka*3 - 1] = 0;
+      }
+      
+      int index_zaciatku_dolneho_riadku = (vyska - 1) * sirka * 3;
+      for (int i = 0; i < sirka; i++)
+      {
+         // horny okraj
+         buffer[i*3] = 0;
+         buffer[i*3 + 1] = 0;
+         buffer[i*3 + 2] = 0;
+         
+         // dolny okraj
+         buffer[index_zaciatku_dolneho_riadku + i * 3] = 0;
+         buffer[index_zaciatku_dolneho_riadku + i * 3 + 1] = 0;
+         buffer[index_zaciatku_dolneho_riadku + i * 3 + 2] = 0;
+      }      
 
+      int doteraz_najvacsi = 0;
+      int doteraz_najv_sirka;
+      int doteraz_najv_vyska;
+      
       for (int i = 0; i < vyska; i++)
         for (int j = 0; j < sirka; j++)
         {
@@ -278,26 +323,38 @@ y = 0;
   	      uint8_t g = *(p++);
   	      uint8_t r = *(p++);
 #endif
-  	      if (je_lopta(r,g,b) == 1)
-              {
-                cnt++;
-                x = x + j;
-                y = y + i;
-              }
+  	      if (je_lopta(r, g, b))
+  	      {
+            mins = sirka, minr = vyska, maxs = -1, maxs = -1;
+  		      int pocet = fill(i, j);
+            if (pocet > doteraz_najvacsi)
+            {
+              doteraz_najvacsi = pocet;
+              doteraz_najv_sirka = maxs - mins + 1;
+              doteraz_najv_vyska = maxr - minr + 1;
+            }
+  	      }
         }
-      printf("%d oranzovych bodov\n", cnt);
-    if (cnt == 0){
-      printf("Nevidim\n");
-    }
-    else{
-      x = x/cnt;
-      y = y/cnt;
-      printf("X: %f \n", x);
-      printf("Y: %f \n", y);
-      navigacia(cnt);
-      printf("Vzdialenost je: %f \n", vzdialenost);
-    }
-    }
+      printf("velkost: %d, sirka: %d, vyska: %d\n", doteraz_najvacsi, 
+               doteraz_najv_sirka, doteraz_najv_vyska);
+      
+      static int iter = 0;
+      
+      if (iter++ == 300)
+      {
+        iter = 0;      
+        static int counter = 0;
+        char filename[30];
+        sprintf(filename, "image%d.png", counter++);
+      
+#ifdef POUZI_YUV
+        write_yuv422_png_image((uint8_t *)buffer, filename, 320, 280);
+#else
+        write_bgr_png_image((uint8_t *)buffer, filename, 320, 200);
+#endif
+      }
+               
+    } 
     long long tm2 = usec();
     double cas = (tm2 - tm) / 1000000.0;
     printf("celkovy cas: %.2lf s (%.2lf fps)\n", cas, pocet_opakovani / (double)cas);
