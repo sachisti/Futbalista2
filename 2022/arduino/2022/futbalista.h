@@ -1,4 +1,4 @@
-// all function prototypes here
+// vsetky prototypy funkcii
 
 // pohyb
 
@@ -9,7 +9,7 @@ void dolava();
 void doprava();
 void dokola();
 void dopredu();
-void stop(); 
+void zastav(); 
 
 void simple_test_motors();
 void motor_speed(uint8_t motor, uint8_t speed);
@@ -30,3 +30,13 @@ uint8_t start_on();
 void setup_senzory();
 void test_senzorov();
 
+// komunikacia
+
+
+void setup_komunikacia();
+void komunikacia();        // treba volat v hlavnej slucke casto
+
+// strategia
+
+void setup_strategia();
+void strategia();          // treba volat v hlavnej slucke casto

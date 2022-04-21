@@ -24,7 +24,7 @@ uint8_t start_on()
 
 void test_vypinace()
 {
-  while (1)
+  while (!Serial.available())
   {
     if (digitalRead(START_SWITCH) == 0)
     {

@@ -2,20 +2,18 @@
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(13, OUTPUT);
-  
+
   setup_vypinace();
   setup_pohyb();
   setup_senzory();
-  
-  //test_vypinace();
-  //test_motors();
-  
+  setup_strategia();
+  setup_komunikacia();  
 }
 
 void loop()
 {
-  test_senzorov();
-  delay(300);
+  komunikacia();
+  strategia();
 }

@@ -24,6 +24,7 @@ void zapis_kalibraciu_do_EEPROM()
 
 void test_senzorov()
 {
+    Serial.print("$");
     for (int i=0; i<6; i++)
     {
         if (i>3) val=analogRead (i+2);
@@ -32,14 +33,14 @@ void test_senzorov()
         if (val<prah[i]) Serial.print("0");  
         else Serial.print("1");
      }
-     Serial.println();
-     delay(150);
+     Serial.println();     
 }
 
 void kalibracia()
 {
   while(!config_on()) 
   {  
+     Serial.print("$");
      for (int i=0; i<6; i++)
      {              
        if (i>3) val=analogRead (i+2);
@@ -67,7 +68,7 @@ void kalibracia()
 
 void setup_senzory() 
 {  
-  Serial.println("Zacinam kalibraciu.");
+  //Serial.println("$Zacinam kalibraciu.");
   for (int i = 0; i < 6; i++)
   {
     if (i>3) val=analogRead (i+2);

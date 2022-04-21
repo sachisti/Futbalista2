@@ -20,10 +20,10 @@
 
 #define LFWD 0
 #define LBWD 1
-#define RFWD 0
-#define RBWD 1
-#define BRT  0
-#define BLT  1
+#define RFWD 1
+#define RBWD 0
+#define BRT  1
+#define BLT  0
 
 volatile uint8_t r1, r2, r3;
 volatile uint8_t t1_tick;
@@ -147,6 +147,7 @@ void test_motors()
       motor_speed(2, i);
       motor_speed(3, i);
       delay(400);
+      if (Serial.available()) break;
     }
   
     for (int i = 20; i >= 0; i--)
@@ -155,7 +156,11 @@ void test_motors()
       motor_speed(2, i);
       motor_speed(3, i);
       delay(400);
+      if (Serial.available()) break;
     }
+    motor_speed(1, 0);
+    motor_speed(2, 0);
+    motor_speed(3, 0);
   }
 }
 /*
@@ -235,7 +240,7 @@ void dopredu() {
   motor_speed(MR, 10);
 }
 
-void stop() {
+void zastav() {
   motor_speed(MB, 0);
   motor_speed(ML, 0);
   motor_speed(MR, 00);
@@ -254,7 +259,7 @@ void riadenie_cez_seriovy_port()
       case '2': dopredu(); break;
       case '3': doprava(); break;
       case '9': test_motors2(); break;
-      case ' ': stop(); break;
+      case ' ': zastav(); break;
     }
   }
 }
