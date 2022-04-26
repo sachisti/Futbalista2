@@ -236,7 +236,7 @@ void dopredu() {
   motor_speed(MB, 0);
   motor_smer(ML, LFWD);
   motor_speed(ML, 10);
-  motor_smer(MR, LFWD);
+  motor_smer(MR, RFWD);
   motor_speed(MR, 10);
 }
 
