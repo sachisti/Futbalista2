@@ -68,6 +68,7 @@ int hra()
         int sirka, vyska, velkost, riadok, stlpec;
         najdi_loptu(&sirka, &vyska, &velkost, &riadok, &stlpec);
 	
+	if (velkost < 20) continue;
 	if (!stlpec) posli_nevidi_loptu();
 	if (stlpec < 320 / 3) posli_lopta_vpravo();
 	else if (stlpec < 2 * 320 / 3) posli_lopta_vstrede();
