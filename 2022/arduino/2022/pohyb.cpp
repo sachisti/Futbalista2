@@ -222,9 +222,9 @@ void dolava() {
   kam_ide = IDE_VLAVO;
   motor_speed(ML, 0);
   motor_smer(ML, LFWD);
-  motor_speed(MR, 10);
+  motor_speed(MR, 20);
   motor_smer(MR, RFWD);
-  motor_speed(MB, 10);
+  motor_speed(MB, 20);
   motor_smer(MB, BLT);
 }
 
@@ -232,9 +232,9 @@ void doprava_vzad() {
   kam_ide = IDE_VPRAVO_VZAD;
   motor_speed(ML, 0);
   motor_smer(ML, LBWD);
-  motor_speed(MR, 10);
+  motor_speed(MR, 20);
   motor_smer(MR, RBWD);
-  motor_speed(MB, 10);
+  motor_speed(MB, 20);
   motor_smer(MB, BRT);
 }
 
@@ -242,9 +242,9 @@ void doprava() {
   kam_ide = IDE_ROVNO;
   motor_speed(MR, 0);
   motor_smer(MR, RFWD);
-  motor_speed(ML, 10);
+  motor_speed(ML, 20);
   motor_smer(ML, LFWD);
-  motor_speed(MB, 10);
+  motor_speed(MB, 20);
   motor_smer(MB, BRT);
 }
 
@@ -252,9 +252,9 @@ void dolava_vzad() {
   kam_ide = IDE_VLAVO_VZAD;
   motor_speed(MR, 0);
   motor_smer(MR, RBWD);
-  motor_speed(ML, 10);
+  motor_speed(ML, 20);
   motor_smer(ML, LBWD);
-  motor_speed(MB, 10);
+  motor_speed(MB, 20);
   motor_smer(MB, BLT);
 }
 
@@ -275,9 +275,9 @@ void dopredu() {
   motor_smer(MB, BRT);
   motor_speed(MB, 0);
   motor_smer(ML, LFWD);
-  motor_speed(ML, 10);
+  motor_speed(ML, 20);
   motor_smer(MR, RFWD);
-  motor_speed(MR, 10);
+  motor_speed(MR, 20);
 }
 
 void dozadu() {
@@ -285,9 +285,9 @@ void dozadu() {
   motor_smer(MB, BRT);
   motor_speed(MB, 0);
   motor_smer(ML, LBWD);
-  motor_speed(ML, 10);
+  motor_speed(ML, 20);
   motor_smer(MR, RBWD);
-  motor_speed(MR, 10);
+  motor_speed(MR, 20);
 }
 
 
