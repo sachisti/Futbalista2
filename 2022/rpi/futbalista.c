@@ -20,6 +20,9 @@ void navod()
 	printf("11 - start hry\n");
 	printf("100 - koniec\n");
 	printf("9999 - test komunikacie\n");
+	printf("31 - Arduino dolava_vzad()\n");
+	printf("32 - Arduino doprava_vzad()\n");
+	printf("33 - Arduino dozadu()\n");
 }
 
 //spravy RPI -> Arduino:

@@ -35,6 +35,7 @@
 #define IDE_VPRAVO_VZAD  7
 #define STOJI            8
 
+#define CAS_OBRAT_SMER 500 //cas na ktory pojde robot do opacneho smeru
 
 volatile uint8_t r1, r2, r3;
 volatile uint8_t t1_tick;
@@ -234,7 +235,7 @@ void doprava_vzad() {
   motor_speed(MR, 10);
   motor_smer(MR, RBWD);
   motor_speed(MB, 10);
-  motor_smer(MB, BLT);
+  motor_smer(MB, BRT);
 }
 
 void doprava() {
@@ -254,7 +255,7 @@ void dolava_vzad() {
   motor_speed(ML, 10);
   motor_smer(ML, LBWD);
   motor_speed(MB, 10);
-  motor_smer(MB, BRT);
+  motor_smer(MB, BLT);
 }
 
 void dokola() {
@@ -300,10 +301,10 @@ void zastav() {
 void obrat_smer()
 {
   switch (kam_ide) {
-    case IDE_ROVNO: dozadu(); delay(2000); zastav(); break;
-    case IDE_VZAD: dopredu(); delay(2000); zastav(); break;
-    case IDE_VLAVO: doprava_vzad(); delay(2000); zastav(); break;
-    case IDE_VPRAVO: dolava_vzad(); delay(2000); zastav(); break;
+    case IDE_ROVNO: dozadu(); delay(CAS_OBRAT_SMER); zastav(); break;
+    case IDE_VZAD: dopredu(); delay(CAS_OBRAT_SMER); zastav(); break;
+    case IDE_VLAVO: doprava_vzad(); delay(CAS_OBRAT_SMER); zastav(); break;
+    case IDE_VPRAVO: dolava_vzad(); delay(CAS_OBRAT_SMER); zastav(); break;
     default: zastav(); break;    
   }
 }

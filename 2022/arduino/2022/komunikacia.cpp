@@ -39,6 +39,11 @@ void spracuj_paket()
   else if (a == 6) dopredu();
   else if (a == 7) doprava(); 
   else if (a == 8) zastav();
+  
+  else if (a == 31) dolava_vzad();
+  else if (a == 32) doprava_vzad();
+  else if (a == 33) dozadu();
+  
   else if (a == 9999) Serial.print("$zelena je trava\n");
   
   else if (a == 21) doprava();
