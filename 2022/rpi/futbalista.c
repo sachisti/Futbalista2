@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "futbalista.h"
+
+uint8_t headless = 0;
 
 void navod()
 {
@@ -14,12 +17,72 @@ void navod()
 	printf("7 - test doprava\n");
 	printf("8 - test zastav\n");
 	printf("9 - test kamery\n");
+	printf("11 - start hry\n");
 	printf("100 - koniec\n");
 	printf("9999 - test komunikacie\n");
 }
 
-void hlavny_program()
+//spravy RPI -> Arduino:
+//  21 - lopta vpravo
+//  22 - lopta vlavo
+//  23 - lopta v strede
+//  24 - nevidi loptu
+
+
+void posli_lopta_vpravo()
 {
+    char *s = "21";    
+    zapis_paket_do_arduina(s);
+
+}
+
+void posli_lopta_vlavo()
+{
+    char *s = "22";    
+    zapis_paket_do_arduina(s);
+
+}
+
+void posli_lopta_vstrede()
+{
+    char *s = "23";    
+    zapis_paket_do_arduina(s);
+}
+
+void posli_nevidi_loptu()
+{
+    char *s = "24";    
+    zapis_paket_do_arduina(s);
+}
+
+
+int hra()
+{
+    int iter = 0;
+    zaloguj("futbalista bezi v headless rezime");
+    
+    do {
+        int sirka, vyska, velkost, riadok, stlpec;
+        najdi_loptu(&sirka, &vyska, &velkost, &riadok, &stlpec);
+	
+	if (!stlpec) posli_nevidi_loptu();
+	if (stlpec < 320 / 3) posli_lopta_vpravo();
+	else if (stlpec < 2 * 320 / 3) posli_lopta_vstrede();
+	else posli_lopta_vlavo();
+	
+	iter++;
+	if (iter % 100 == 0)
+	  zaloguj_n("hra() iter", iter);
+    } while (1);
+    
+    return 0;
+}
+
+int hlavny_program()
+{
+    if (headless) return hra();
+    
+    zaloguj("futbalista bezi v interaktivnom rezime");
     char sprava[100];
     int a = 0;
     printf("0 = navod\n");
@@ -37,8 +100,11 @@ void hlavny_program()
     } while (a != 100);
 }
 
-int main()
+int main(int argc, char **argv)
 {
+    if ((argc > 1) && (strcmp(argv[1], "headless") == 0)) headless = 1;
+    
+    setup_log();
     setup_komunikacia();
     setup_kamera();
 

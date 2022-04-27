@@ -16,4 +16,10 @@ void loop()
 {
   komunikacia();
   strategia();
+  kontrola_senzorov();
+  if (start_on())
+  {
+    zastav();
+    while (start_on());
+  }
 }

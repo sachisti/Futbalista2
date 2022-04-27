@@ -25,9 +25,22 @@
 #define BRT  1
 #define BLT  0
 
+// kam ide
+#define IDE_VPRAVO       1
+#define IDE_VLAVO        2
+#define IDE_ROVNO        3
+#define IDE_VZAD         4
+#define TOCI_SA          5
+#define IDE_VLAVO_VZAD   6
+#define IDE_VPRAVO_VZAD  7
+#define STOJI            8
+
+
 volatile uint8_t r1, r2, r3;
 volatile uint8_t t1_tick;
 volatile uint8_t on1, off1, on2, off2, on3, off3;
+
+static uint8_t kam_ide = STOJI;
 
 void setup_pohyb()
 {
@@ -205,6 +218,7 @@ ISR(TIMER1_OVF_vect)
   if (t1_tick >= 20) t1_tick = 0;
 }
 void dolava() {
+  kam_ide = IDE_VLAVO;
   motor_speed(ML, 0);
   motor_smer(ML, LFWD);
   motor_speed(MR, 10);
@@ -212,7 +226,19 @@ void dolava() {
   motor_speed(MB, 10);
   motor_smer(MB, BLT);
 }
+
+void doprava_vzad() {
+  kam_ide = IDE_VPRAVO_VZAD;
+  motor_speed(ML, 0);
+  motor_smer(ML, LBWD);
+  motor_speed(MR, 10);
+  motor_smer(MR, RBWD);
+  motor_speed(MB, 10);
+  motor_smer(MB, BLT);
+}
+
 void doprava() {
+  kam_ide = IDE_ROVNO;
   motor_speed(MR, 0);
   motor_smer(MR, RFWD);
   motor_speed(ML, 10);
@@ -220,7 +246,19 @@ void doprava() {
   motor_speed(MB, 10);
   motor_smer(MB, BRT);
 }
+
+void dolava_vzad() {
+  kam_ide = IDE_VLAVO_VZAD;
+  motor_speed(MR, 0);
+  motor_smer(MR, RBWD);
+  motor_speed(ML, 10);
+  motor_smer(ML, LBWD);
+  motor_speed(MB, 10);
+  motor_smer(MB, BRT);
+}
+
 void dokola() {
+  kam_ide = TOCI_SA;
   digitalWrite(13, HIGH);
   motor_smer(MB, BLT);
   motor_speed(MB, 5);
@@ -232,6 +270,7 @@ void dokola() {
 
 
 void dopredu() {
+  kam_ide = IDE_ROVNO;
   motor_smer(MB, BRT);
   motor_speed(MB, 0);
   motor_smer(ML, LFWD);
@@ -240,11 +279,35 @@ void dopredu() {
   motor_speed(MR, 10);
 }
 
+void dozadu() {
+  kam_ide = IDE_VZAD;
+  motor_smer(MB, BRT);
+  motor_speed(MB, 0);
+  motor_smer(ML, LBWD);
+  motor_speed(ML, 10);
+  motor_smer(MR, RBWD);
+  motor_speed(MR, 10);
+}
+
+
 void zastav() {
+  kam_ide = STOJI;
   motor_speed(MB, 0);
   motor_speed(ML, 0);
   motor_speed(MR, 00);
 }
+
+void obrat_smer()
+{
+  switch (kam_ide) {
+    case IDE_ROVNO: dozadu(); delay(2000); zastav(); break;
+    case IDE_VZAD: dopredu(); delay(2000); zastav(); break;
+    case IDE_VLAVO: doprava_vzad(); delay(2000); zastav(); break;
+    case IDE_VPRAVO: dolava_vzad(); delay(2000); zastav(); break;
+    default: zastav(); break;    
+  }
+}
+
   
 void riadenie_cez_seriovy_port()
 {

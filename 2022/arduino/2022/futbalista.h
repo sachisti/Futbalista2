@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 // vsetky prototypy funkcii
 
 // pohyb
@@ -10,6 +12,9 @@ void doprava();
 void dokola();
 void dopredu();
 void zastav(); 
+
+void obrat_smer();
+
 
 void simple_test_motors();
 void motor_speed(uint8_t motor, uint8_t speed);
@@ -29,6 +34,7 @@ uint8_t start_on();
 
 void setup_senzory();
 void test_senzorov();
+int vidi_ciaru();
 
 // komunikacia
 
@@ -40,3 +46,4 @@ void komunikacia();        // treba volat v hlavnej slucke casto
 
 void setup_strategia();
 void strategia();          // treba volat v hlavnej slucke casto
+void kontrola_senzorov();

@@ -36,6 +36,18 @@ void test_senzorov()
      Serial.println();     
 }
 
+int vidi_ciaru()
+{
+    for (int i=0; i<6; i++)
+    {
+        if (i>3) val=analogRead (i+2);
+        else val=analogRead (i);
+     
+        if (val<prah[i]) return 1;        
+    }
+    return 0;
+}
+
 void kalibracia()
 {
   while(!config_on()) 

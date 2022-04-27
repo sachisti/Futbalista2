@@ -16,6 +16,13 @@ void setup_komunikacia()
   Serial.println("$init");
 }
 
+
+//spravy RPI -> Arduino:
+//  21 - lopta vpravo
+//  22 - lopta vlavo
+//  23 - lopta v strede
+//  24 - nevidi loptu
+
 void spracuj_paket()
 {
   // na tomto mieste mame v poli paket[] prijaty 0-ukonceny retazec znakov
@@ -32,7 +39,12 @@ void spracuj_paket()
   else if (a == 6) dopredu();
   else if (a == 7) doprava(); 
   else if (a == 8) zastav();
-  else if (a == 9999) Serial.println("$zelena je trava\n");
+  else if (a == 9999) Serial.print("$zelena je trava\n");
+  
+  else if (a == 21) doprava();
+  else if (a == 22) dolava();
+  else if (a == 23) dopredu();
+  else if (a == 24) dokola();
 }
 
 void precitaj_dalsi_znak()

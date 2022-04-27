@@ -95,7 +95,7 @@ int init_mmap(int fd)
     return 0;
 }
 
-int je_lopta(uint8_t r, uint8_t g, uint8_t b)
+int je_lopta (uint8_t r, uint8_t g, uint8_t b)
 {
 
   float h, s, v, max, min;
@@ -118,7 +118,6 @@ int je_lopta(uint8_t r, uint8_t g, uint8_t b)
       min = g;
     }
   }
-
 
 
   if (r > b){
@@ -153,10 +152,11 @@ int je_lopta(uint8_t r, uint8_t g, uint8_t b)
   v = max;
 
   s = (max-min)/max;
+  
   if (h < 0){
     h = h + 360;
   }
-  if (h < 28 && h > 8 && s > 0.5 && v > 100){
+  if (((h < 28) || (h > 348)) && s > 0.5 && v > 100){
     return 1;
   }
   return 0;
@@ -237,7 +237,7 @@ int init_sledovanie()
     }
 }
  
-void najdi_loptu(int *sirka_lopty, int *vyska_lopty, int *velkost_lopty)
+void najdi_loptu(int *sirka_lopty, int *vyska_lopty, int *velkost_lopty, int *riadok, int *stlpec)
 {
       if(-1 == xioctl(kamera_fd, VIDIOC_QBUF, &buf))
       {
@@ -305,8 +305,10 @@ void najdi_loptu(int *sirka_lopty, int *vyska_lopty, int *velkost_lopty)
       }      
 
       int doteraz_najvacsi = 0;
-      int doteraz_najv_sirka;
-      int doteraz_najv_vyska;
+      int doteraz_najv_sirka = 0;
+      int doteraz_najv_vyska = 0;
+      int doteraz_najv_riadok = 0;
+      int doteraz_najv_stlpec = 0;
       
       for (int i = 0; i < vyska; i++)
         for (int j = 0; j < sirka; j++)
@@ -323,13 +325,15 @@ void najdi_loptu(int *sirka_lopty, int *vyska_lopty, int *velkost_lopty)
   	      if (je_lopta(r, g, b))
   	      {
                   mins = sirka, minr = vyska, maxs = -1, maxs = -1;
-  		  int pocet = fill(i, j);
+                  int pocet = fill(i, j);
                   if (pocet > doteraz_najvacsi)
                   {
                       doteraz_najvacsi = pocet;
                       doteraz_najv_sirka = maxs - mins + 1;
                       doteraz_najv_vyska = maxr - minr + 1;
-                   }
+                      doteraz_najv_riadok = (maxr + minr) / 2;
+                      doteraz_najv_stlpec = (maxs + mins) / 2;
+                  }
   	      }
         }
       //printf("velkost: %d, sirka: %d, vyska: %d\n", doteraz_najvacsi, 
@@ -338,30 +342,33 @@ void najdi_loptu(int *sirka_lopty, int *vyska_lopty, int *velkost_lopty)
       *sirka_lopty = doteraz_najv_sirka;
       *vyska_lopty = doteraz_najv_vyska;
       *velkost_lopty = doteraz_najvacsi;
+      *riadok = doteraz_najv_riadok;
+      *stlpec = doteraz_najv_stlpec;
       
       static int iter = 0;
       
-      if (iter++ == 300)
-      {
-        iter = 0;      
-        static int counter = 0;
-        char filename[30];
-        sprintf(filename, "image%d.png", counter++);
+      //if (iter++ == 1)
+      //~ {
+        //~ iter = 0;      
+        //~ static int counter = 0;
+        //~ char filename[30];
+        //~ sprintf(filename, "image%d.png", counter++);
       
-#ifdef POUZI_YUV
-        write_yuv422_png_image((uint8_t *)buffer, filename, 320, 280);
-#else
-        write_bgr_png_image((uint8_t *)buffer, filename, 320, 200);
-#endif
-      }
+//~ #ifdef POUZI_YUV
+        //~ write_yuv422_png_image((uint8_t *)buffer, filename, 320, 280);
+//~ #else
+        //~ write_bgr_png_image((uint8_t *)buffer, filename, 320, 200);
+//~ #endif
+      //~ }
 }
 
 void test_kamery()
 {
-   int sirka, vyska, velkost;
+   int sirka, vyska, velkost, riadok, stlpec;
 
-   najdi_loptu(&sirka, &vyska, &velkost);
-   printf("s: %d, v: %d, P: %d\n", sirka, vyska, velkost);
+   najdi_loptu(&sirka, &vyska, &velkost, &riadok, &stlpec);
+   
+   printf("s: %d, v: %d, P: %d, R: %d, S: %d\n", sirka, vyska, velkost, riadok, stlpec);
 }
  
 int setup_kamera()
