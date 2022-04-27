@@ -12,6 +12,9 @@ void doprava();
 void dokola();
 void dopredu();
 void zastav(); 
+void dolava_vzad();
+void doprava_vzad();
+void dozadu();
 
 void obrat_smer();
 
