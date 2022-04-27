@@ -156,7 +156,7 @@ int je_lopta(uint8_t r, uint8_t g, uint8_t b)
   if (h < 0){
     h = h + 360;
   }
-  if (h < 28 && h > 8 && s > 0.5 && v > 100){
+  if (((h < 28) || (h > 348)) && s > 0.5 && v > 100){
     return 1;
   }
   return 0;
@@ -340,7 +340,7 @@ int detect_red(int fd)
       
       static int iter = 0;
       
-      if (iter++ == 300)
+      if (iter++ == 100)
       {
         iter = 0;      
         static int counter = 0;
