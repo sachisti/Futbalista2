@@ -232,9 +232,9 @@ void doprava_vzad() {
   kam_ide = IDE_VPRAVO_VZAD;
   motor_speed(ML, 0);
   motor_smer(ML, LBWD);
-  motor_speed(MR, 20);
+  motor_speed(MR, 10);
   motor_smer(MR, RBWD);
-  motor_speed(MB, 20);
+  motor_speed(MB, 10);
   motor_smer(MB, BRT);
 }
 
@@ -252,15 +252,15 @@ void dolava_vzad() {
   kam_ide = IDE_VLAVO_VZAD;
   motor_speed(MR, 0);
   motor_smer(MR, RBWD);
-  motor_speed(ML, 20);
+  motor_speed(ML, 10);
   motor_smer(ML, LBWD);
-  motor_speed(MB, 20);
+  motor_speed(MB, 10);
   motor_smer(MB, BLT);
 }
 
 void dokola() {
   kam_ide = TOCI_SA;
-  digitalWrite(13, HIGH);
+  //digitalWrite(13, HIGH);
   motor_smer(MB, BLT);
   motor_speed(MB, 5);
   motor_smer(MR, RBWD);
@@ -285,9 +285,9 @@ void dozadu() {
   motor_smer(MB, BRT);
   motor_speed(MB, 0);
   motor_smer(ML, LBWD);
-  motor_speed(ML, 20);
+  motor_speed(ML, 10);
   motor_smer(MR, RBWD);
-  motor_speed(MR, 20);
+  motor_speed(MR, 10);
 }
 
 

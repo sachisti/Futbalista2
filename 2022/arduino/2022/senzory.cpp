@@ -43,7 +43,11 @@ int vidi_ciaru()
         if (i>3) val=analogRead (i+2);
         else val=analogRead (i);
      
-        if (val<prah[i]) return 1;        
+        if (val<prah[i]){
+          digitalWrite(13,HIGH);
+          return 1;
+        }
+        digitalWrite(13,LOW);
     }
     return 0;
 }
